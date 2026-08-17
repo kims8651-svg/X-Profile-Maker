@@ -364,26 +364,6 @@
   }
   .bg-slot.has-image{cursor:grab;}
   .bg-slot.has-image:active{cursor:grabbing;}
-
-  /* 여백 위에 얹는 살짝 하얀 뿌연 점(그레인) 효과 : 카드(win98-window)는 배경이 불투명해서
-     그 위로는 자연스럽게 가려지고, 카드 바깥 여백(과 여백 배경 이미지)에만 보임 */
-  .texture-slot{
-    position:absolute;inset:0;
-    pointer-events:none;user-select:none;
-    opacity:0;
-    transition:opacity .18s ease;
-    background-image:
-      radial-gradient(circle, rgba(255,255,255,.95) 0 1.1px, transparent 1.7px),
-      radial-gradient(circle, rgba(255,255,255,.7) 0 .9px, transparent 1.5px),
-      radial-gradient(circle, rgba(255,255,255,.55) 0 1.3px, transparent 1.9px);
-    background-size:9px 9px, 15px 15px, 23px 23px;
-    background-position:0 0, 5px 8px, 12px 3px;
-  }
-  .export-frame.texture-on .texture-slot{opacity:.6;}
-  #textureToggleBtn.selected{
-    background:var(--c-base-light);color:var(--c-base-darker);
-    border-color:var(--win-lo) var(--win-hi) var(--win-hi) var(--win-lo);
-  }
   .export-frame-content{position:relative;z-index:1;pointer-events:none;}
   .export-frame-content>*{pointer-events:auto;}
   .export-frame-tag{
@@ -458,11 +438,6 @@
       </div>
 
       <div class="props-row" style="margin-bottom:2px;">
-        <span class="props-label">여백 효과</span>
-        <button class="win98-btn" id="textureToggleBtn" type="button">✨ 뿌연 점 효과</button>
-      </div>
-
-      <div class="props-row" style="margin-bottom:2px;">
         <span class="props-label">저장 비율</span>
         <div class="ratio-group" id="ratioGroup">
           <button class="win98-btn ratio-btn selected" type="button" data-ratio="default">기본</button>
@@ -481,7 +456,6 @@
     <div class="bg-slot" id="bgSlot">
       <img class="preview-img" id="bgPreviewImg">
     </div>
-    <div class="texture-slot" id="textureSlot"></div>
     <div class="export-frame-content">
     <span class="export-frame-tag no-export">✂︎ 점선 안쪽까지 이미지로 저장돼요</span>
     <div class="win98-window" id="card">
@@ -1121,13 +1095,6 @@
     delete bgPreviewImg._baseH;
   });
 
-  // ---------- 여백 위 뿌연 점(그레인) 효과 켜고 끄기 ----------
-  const textureToggleBtn = document.getElementById('textureToggleBtn');
-  textureToggleBtn.addEventListener('click', ()=>{
-    const on = exportFrame.classList.toggle('texture-on');
-    textureToggleBtn.classList.toggle('selected', on);
-  });
-
   // ---------- 저장 비율: 오른쪽 여백을 확장해 기본 / 정사각형 / 사과패드 비율로 저장 ----------
   const card = document.getElementById('card');
   const ratioBtns = document.querySelectorAll('.ratio-btn');
@@ -1249,14 +1216,20 @@
     clonedSlot.style.backgroundPosition = `${posX}px ${posY}px`;
   }
 
-  // 카드 길이(CP 페어·비고를 많이 추가할수록 길어짐)에 맞춰 저장 배율을 자동으로
-  // 낮춰준다. 구형 iOS Safari는 캔버스 한 변이 4096px, 전체 면적이
-  // 약 1677만px을 넘으면 저장이 조용히 실패하거나 빈 이미지가 나오는 문제가 있어,
-  // 항상 고정 2배로 저장하면 카드가 길어졌을 때 특히 아이폰에서 저장이 깨질 수 있다.
+  // iOS(아이폰/아이패드, 웹뷰 포함)는 브라우저 엔진이 전부 WebKit이라 캔버스 한 변이
+  // 4096px, 전체 면적이 약 1677만px을 넘으면 저장이 조용히 실패하거나 빈 이미지가
+  // 나오는 문제가 있다. 반면 PC나 안드로이드는 훨씬 큰 캔버스도 문제없이 처리하므로,
+  // iOS에서만 안전 배율 제한을 걸고 그 외 환경은 화질(2배)을 그대로 유지한다.
+  const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  // 카드 길이(CP 페어·비고를 많이 추가할수록 길어짐)나 정사각형/사과패드 비율로
+  // 인한 여백 확장 때문에 카드가 커질 수 있는데, iOS에서 항상 고정 2배로 저장하면
+  // 카드가 길어졌을 때 저장이 깨질 수 있어 이 경우에만 배율을 자동으로 낮춘다.
   function computeSafeExportScale(frame){
     const w = frame.scrollWidth, h = frame.scrollHeight;
-    const SAFE_MAX_DIM = 4000;
-    const SAFE_MAX_AREA = 15000000;
+    const SAFE_MAX_DIM = isIOSDevice ? 4000 : 12000;
+    const SAFE_MAX_AREA = isIOSDevice ? 15000000 : 100000000;
     let scale = 2;
     if(w>0) scale = Math.min(scale, SAFE_MAX_DIM/w);
     if(h>0) scale = Math.min(scale, SAFE_MAX_DIM/h);
