@@ -165,6 +165,16 @@
   }
   .field-label::before{content:'▸ ';color:var(--c-base-darker);}
 
+  .field-label-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px;}
+  .field-label-row .field-label{margin-bottom:0;}
+  .label-toggle-btn{
+    font-family:inherit;font-size:10.5px;font-weight:bold;color:var(--ink);
+    background:var(--win-face);
+    border:1px solid;border-color:var(--win-hi) var(--win-dk) var(--win-dk) var(--win-hi);
+    padding:2px 7px;cursor:pointer;user-select:none;flex-shrink:0;
+  }
+  .label-toggle-btn:active{border-color:var(--win-lo) var(--win-hi) var(--win-hi) var(--win-lo);}
+
   /* profile pic / nickname / id */
   .identity-card{
     display:flex;gap:14px;align-items:center;
@@ -528,7 +538,10 @@
           </div>
 
           <div class="field" style="margin-bottom:0;">
-            <label class="field-label">사용 플랫폼</label>
+            <div class="field-label-row">
+              <label class="field-label" id="platformLabel" data-default="사용 플랫폼" data-alt="비고">사용 플랫폼</label>
+              <button type="button" class="label-toggle-btn no-export" id="platformLabelToggle" aria-label="라벨 전환">⇄ 비고로</button>
+            </div>
             <textarea class="textarea-input compact" placeholder="자유기재" rows="1"></textarea>
           </div>
 
@@ -991,6 +1004,19 @@
     if(bg && !bg.classList.contains('has-image')) bgImageInput.click();
   });
 
+  // ---------- platform label toggle: 사용 플랫폼 ⇄ 비고 ----------
+  (function(){
+    const label = document.getElementById('platformLabel');
+    const toggleBtn = document.getElementById('platformLabelToggle');
+    if(label && toggleBtn){
+      toggleBtn.addEventListener('click', ()=>{
+        const isAlt = label.textContent === label.dataset.alt;
+        label.textContent = isAlt ? label.dataset.default : label.dataset.alt;
+        toggleBtn.textContent = isAlt ? '⇄ 비고로' : '⇄ 플랫폼으로';
+      });
+    }
+  })();
+
   // ---------- cycle-toggle: click advances through options (incl. unselected) ----------
   document.querySelectorAll('.cycle-toggle').forEach(btn=>{
     const options = btn.dataset.options.split(',');
@@ -1166,6 +1192,13 @@
       div.style.whiteSpace = 'pre';
       div.style.display = 'flex';
       div.style.alignItems = 'center';
+      // display:flex로 바꾸면 원본의 text-align이 더 이상 정렬에 반영되지 않으므로
+      // (flex 컨테이너는 justify-content로 정렬), 실제 계산된 text-align 값을
+      // justify-content로 그대로 옮겨줌 — CP 캐릭터 이름란처럼 가운데 정렬인
+      // 필드가 저장 시 왼쪽으로 밀리는 문제 방지
+      const textAlign = getComputedStyle(field).textAlign;
+      const justifyMap = {left:'flex-start', start:'flex-start', center:'center', right:'flex-end', end:'flex-end'};
+      div.style.justifyContent = justifyMap[textAlign] || 'flex-start';
     }
     field.replaceWith(div);
   }
