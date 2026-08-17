@@ -364,6 +364,26 @@
   }
   .bg-slot.has-image{cursor:grab;}
   .bg-slot.has-image:active{cursor:grabbing;}
+
+  /* 여백 위에 얹는 살짝 하얀 뿌연 점(그레인) 효과 : 카드(win98-window)는 배경이 불투명해서
+     그 위로는 자연스럽게 가려지고, 카드 바깥 여백(과 여백 배경 이미지)에만 보임 */
+  .texture-slot{
+    position:absolute;inset:0;
+    pointer-events:none;user-select:none;
+    opacity:0;
+    transition:opacity .18s ease;
+    background-image:
+      radial-gradient(circle, rgba(255,255,255,.95) 0 1.1px, transparent 1.7px),
+      radial-gradient(circle, rgba(255,255,255,.7) 0 .9px, transparent 1.5px),
+      radial-gradient(circle, rgba(255,255,255,.55) 0 1.3px, transparent 1.9px);
+    background-size:9px 9px, 15px 15px, 23px 23px;
+    background-position:0 0, 5px 8px, 12px 3px;
+  }
+  .export-frame.texture-on .texture-slot{opacity:.6;}
+  #textureToggleBtn.selected{
+    background:var(--c-base-light);color:var(--c-base-darker);
+    border-color:var(--win-lo) var(--win-hi) var(--win-hi) var(--win-lo);
+  }
   .export-frame-content{position:relative;z-index:1;pointer-events:none;}
   .export-frame-content>*{pointer-events:auto;}
   .export-frame-tag{
@@ -438,6 +458,11 @@
       </div>
 
       <div class="props-row" style="margin-bottom:2px;">
+        <span class="props-label">여백 효과</span>
+        <button class="win98-btn" id="textureToggleBtn" type="button">✨ 뿌연 점 효과</button>
+      </div>
+
+      <div class="props-row" style="margin-bottom:2px;">
         <span class="props-label">저장 비율</span>
         <div class="ratio-group" id="ratioGroup">
           <button class="win98-btn ratio-btn selected" type="button" data-ratio="default">기본</button>
@@ -456,6 +481,7 @@
     <div class="bg-slot" id="bgSlot">
       <img class="preview-img" id="bgPreviewImg">
     </div>
+    <div class="texture-slot" id="textureSlot"></div>
     <div class="export-frame-content">
     <span class="export-frame-tag no-export">✂︎ 점선 안쪽까지 이미지로 저장돼요</span>
     <div class="win98-window" id="card">
@@ -1093,6 +1119,13 @@
     delete bgPreviewImg._natH;
     delete bgPreviewImg._baseW;
     delete bgPreviewImg._baseH;
+  });
+
+  // ---------- 여백 위 뿌연 점(그레인) 효과 켜고 끄기 ----------
+  const textureToggleBtn = document.getElementById('textureToggleBtn');
+  textureToggleBtn.addEventListener('click', ()=>{
+    const on = exportFrame.classList.toggle('texture-on');
+    textureToggleBtn.classList.toggle('selected', on);
   });
 
   // ---------- 저장 비율: 오른쪽 여백을 확장해 기본 / 정사각형 / 사과패드 비율로 저장 ----------
