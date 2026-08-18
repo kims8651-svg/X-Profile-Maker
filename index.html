@@ -139,6 +139,11 @@
     background:var(--c-base-light);color:var(--c-base-darker);
     border-color:var(--win-lo) var(--win-hi) var(--win-hi) var(--win-lo);
   }
+  .dots-btn{padding:7px 12px;font-size:12px;}
+  .dots-btn.active{
+    background:var(--c-base-light);color:var(--c-base-darker);
+    border-color:var(--win-lo) var(--win-hi) var(--win-hi) var(--win-lo);
+  }
 
   /* ---------- main window ---------- */
   .win98-window{
@@ -387,6 +392,15 @@
   }
   .bg-slot.has-image{cursor:grab;}
   .bg-slot.has-image:active{cursor:grabbing;}
+  /* 여백 장식 : 하얀 톤(스크린톤/하프톤) 오버레이 - 배경 위, 카드 아래 레이어.
+     촘촘한 작은 흰 점을 반복시켜, 개별 점보다는 전체적으로 하얗게 톤이 깔린 느낌을 냄 */
+  .dots-layer{
+    position:absolute;inset:0;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Ccircle cx='3' cy='3' r='1.5' fill='white'/%3E%3C/svg%3E");
+    background-repeat:repeat;
+    opacity:0;transition:opacity .15s;
+  }
+  .dots-layer.active{opacity:.6;}
   .export-frame-content{position:relative;z-index:1;pointer-events:none;}
   .export-frame-content>*{pointer-events:auto;}
   .export-frame-tag{
@@ -475,6 +489,7 @@
         <span class="props-label" data-i18n="labelBgImage">여백 배경</span>
         <button class="win98-btn" id="bgImageBtn" type="button" data-i18n="btnChooseImage">🖼️ 이미지 선택</button>
         <button class="win98-btn" id="bgImageResetBtn" type="button" data-i18n="btnResetDefault">↺ 기본값</button>
+        <button class="win98-btn dots-btn" id="dotsToggleBtn" type="button" data-i18n="btnDots">✨ 흰점 추가</button>
         <input type="file" accept="image/*" id="bgImageInput" hidden>
       </div>
 
@@ -497,6 +512,7 @@
     <div class="bg-slot" id="bgSlot">
       <img class="preview-img" id="bgPreviewImg">
     </div>
+    <div class="dots-layer" id="dotsLayer"></div>
     <div class="export-frame-content">
     <span class="export-frame-tag no-export" data-i18n="exportFrameTag">✂︎ 점선 안쪽까지 이미지로 저장돼요</span>
     <div class="win98-window" id="card">
@@ -639,6 +655,7 @@
       palettePastel: "파스텔", paletteVivid: "비비드", paletteDeep: "딥톤", paletteNeutral: "뉴트럴",
       labelCustomPick: "직접 선택", titleCurrentColor: "현재 색상",
       labelBgImage: "여백 배경", btnChooseImage: "🖼️ 이미지 선택", btnResetDefault: "↺ 기본값",
+      btnDots: "✨ 흰점 추가",
       labelSaveRatio: "저장 비율", ratioDefault: "기본", ratioSquare: "정사각형", ratioIpad: "사과패드",
       btnDownload: "💾 이미지로 저장",
       exportFrameTag: "✂︎ 점선 안쪽까지 이미지로 저장돼요",
@@ -666,6 +683,7 @@
       palettePastel: "Pastel", paletteVivid: "Vivid", paletteDeep: "Deep", paletteNeutral: "Neutral",
       labelCustomPick: "Custom", titleCurrentColor: "Current Color",
       labelBgImage: "Background", btnChooseImage: "🖼️ Choose Image", btnResetDefault: "↺ Reset",
+      btnDots: "✨ Add Dots",
       labelSaveRatio: "Aspect Ratio", ratioDefault: "Default", ratioSquare: "Square", ratioIpad: "iPad",
       btnDownload: "💾 Save as Image",
       exportFrameTag: "✂︎ Everything inside the dashed line gets saved",
@@ -693,6 +711,7 @@
       palettePastel: "パステル", paletteVivid: "ビビッド", paletteDeep: "ディープトーン", paletteNeutral: "ニュートラル",
       labelCustomPick: "自分で選択", titleCurrentColor: "現在の色",
       labelBgImage: "背景", btnChooseImage: "🖼️ 画像を選ぶ", btnResetDefault: "↺ デフォルトに戻す",
+      btnDots: "✨ ドット追加",
       labelSaveRatio: "保存比率", ratioDefault: "デフォルト", ratioSquare: "正方形", ratioIpad: "iPad",
       btnDownload: "💾 画像として保存",
       exportFrameTag: "✂︎ 点線の内側までが画像として保存されます",
@@ -1335,6 +1354,14 @@
     delete bgPreviewImg._natH;
     delete bgPreviewImg._baseW;
     delete bgPreviewImg._baseH;
+  });
+
+  // ---------- 여백 장식: 흰점(스파클) 오버레이 켜고 끄기 ----------
+  const dotsLayer = document.getElementById('dotsLayer');
+  const dotsToggleBtn = document.getElementById('dotsToggleBtn');
+  dotsToggleBtn.addEventListener('click', ()=>{
+    const isActive = dotsLayer.classList.toggle('active');
+    dotsToggleBtn.classList.toggle('active', isActive);
   });
 
   // ---------- 저장 비율: 오른쪽 여백을 확장해 기본 / 정사각형 / 사과패드 비율로 저장 ----------
