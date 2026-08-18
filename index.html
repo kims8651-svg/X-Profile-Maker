@@ -401,6 +401,17 @@
 
   body.exporting .no-export{display:none !important;}
 
+  /* 저장(내보내기) 시에는 실제 화면 크기와 무관하게 항상 PC와 동일한 비율로 저장되도록,
+     내보내기 하는 동안에는 아래 모바일 반응형 규칙들을 모두 무시하고 데스크톱 레이아웃을 강제한다. */
+  body.exporting .page{width:600px !important;}
+  body.exporting .window-body{flex-direction:row !important;}
+  body.exporting .profile-section{border-right:1px solid var(--win-hi) !important;box-shadow:1px 0 0 var(--win-lo) !important;border-bottom:none !important;}
+  body.exporting .export-frame{padding:36px 26px !important;}
+  body.exporting .identity-card{flex-wrap:nowrap !important;}
+  body.exporting .text-input,body.exporting .textarea-input,body.exporting .system-text{font-size:13px !important;}
+  body.exporting .id-input{font-size:15px !important;}
+  body.exporting .pair-grid .small-input{font-size:12px !important;}
+
   @media (max-width:480px){
     .identity-card{flex-wrap:wrap;}
   }
@@ -537,13 +548,13 @@
           </div>
 
           <div class="field">
-            <label class="field-label">CP</label>
+            <label class="field-label" data-i18n="labelCP">CP</label>
             <div class="chip-group">
-              <button class="chip" type="button">ALL</button>
-              <button class="chip" type="button">BL</button>
-              <button class="chip" type="button">GL</button>
-              <button class="chip" type="button">HL</button>
-              <button class="chip" type="button">NCP</button>
+              <button class="chip" type="button" data-i18n="cpAll">ALL</button>
+              <button class="chip" type="button" data-i18n="cpBL">BL</button>
+              <button class="chip" type="button" data-i18n="cpGL">GL</button>
+              <button class="chip" type="button" data-i18n="cpHL">HL</button>
+              <button class="chip" type="button" data-i18n="cpNCP">NCP</button>
             </div>
           </div>
 
@@ -583,7 +594,7 @@
     </div>
   </div>
 
-  <div class="statusbar no-export" data-i18n="statusbarHint">ⓘ 사진은 스크롤로 확대 및 이동 할 수 있어요. 이미 업로드된 칸은 우클릭으로(휴대폰은 꾹누르기로) 바꿀 수 있어요.</div>
+  <div class="statusbar no-export" data-i18n="statusbarHint">ⓘ 사진은 스크롤(휴대폰은 두 손가락으로 오므리고 벌리기)로 확대, 드래그로 이동할 수 있어요. 이미 업로드된 칸은 우클릭으로(휴대폰은 꾹누르기로) 바꿀 수 있어요.</div>
 </div>
 
 <template id="pairTemplate">
@@ -635,11 +646,12 @@
       labelNG: "NG", placeholderNG: "지양하는 것들을 적어주세요",
       labelAge: "나이", labelParting: "이별", notSelected: "선택 안 함",
       cycleOptions: { age: ["성인","미성년자","비공개"], parting: ["블락","블블","언팔"] },
+      labelCP: "CP", cpAll: "ALL", cpBL: "BL", cpGL: "GL", cpHL: "HL", cpNCP: "NCP",
       labelConsumption: "소비 성향", labelTweetStyle: "트윗 성향", placeholderFreeText: "자유기재",
       platformLabelDefault: "사용 플랫폼", platformLabelAlt: "비고",
       toggleBtnToNote: "⇄ 비고로", toggleBtnToPlatform: "⇄ 플랫폼으로", ariaToggleLabel: "라벨 전환",
       btnAddPair: "+ 페어 추가", btnAddNote: "+ 비고 추가",
-      statusbarHint: "ⓘ 사진은 스크롤로 확대 및 이동 할 수 있어요. 이미 업로드된 칸은 우클릭으로(휴대폰은 꾹누르기로) 바꿀 수 있어요.",
+      statusbarHint: "ⓘ 사진은 스크롤(휴대폰은 두 손가락으로 오므리고 벌리기)로 확대, 드래그로 이동할 수 있어요. 이미 업로드된 칸은 우클릭으로(휴대폰은 꾹누르기로) 바꿀 수 있어요.",
       ariaDeletePair: "페어 삭제", ariaDeleteNote: "비고 삭제",
       placeholderTitle: "제목", labelUpload: "업로드",
       placeholderChar1: "캐릭터1 이름", placeholderChar2: "캐릭터2 이름",
@@ -657,15 +669,16 @@
       labelSaveRatio: "Aspect Ratio", ratioDefault: "Default", ratioSquare: "Square", ratioIpad: "iPad",
       btnDownload: "💾 Save as Image",
       exportFrameTag: "✂︎ Everything inside the dashed line gets saved",
-      labelBio: "Bio", placeholderBio: "Write a little something about yourself",
+      labelBio: "About", placeholderBio: "Write a little something about yourself",
       labelNG: "DNI", placeholderNG: "List what you'd rather avoid",
-      labelAge: "Age", labelParting: "Parting", notSelected: "Not set",
+      labelAge: "Age", labelParting: "Unfollow Etiquette", notSelected: "Not set",
       cycleOptions: { age: ["Adult","Minor","Private"], parting: ["Block","Mutual Block","Unfollow"] },
-      labelConsumption: "Reading Prefs", labelTweetStyle: "Tweet Style", placeholderFreeText: "Write freely",
+      labelCP: "CP", cpAll: "All", cpBL: "M/M", cpGL: "F/F", cpHL: "M/F", cpNCP: "Gen",
+      labelConsumption: "Content Preference", labelTweetStyle: "Tweet Style", placeholderFreeText: "Write freely",
       platformLabelDefault: "Platforms", platformLabelAlt: "Notes",
       toggleBtnToNote: "⇄ To Notes", toggleBtnToPlatform: "⇄ To Platforms", ariaToggleLabel: "Toggle label",
       btnAddPair: "+ Add Pair", btnAddNote: "+ Add Note",
-      statusbarHint: "ⓘ Scroll to zoom, drag to reposition photos. Right-click (long-press on mobile) an uploaded slot to replace it.",
+      statusbarHint: "ⓘ Scroll (or pinch with two fingers on mobile) to zoom, drag to reposition photos. Right-click (long-press on mobile) an uploaded slot to replace it.",
       ariaDeletePair: "Delete pair", ariaDeleteNote: "Delete note",
       placeholderTitle: "Title", labelUpload: "Upload",
       placeholderChar1: "Character 1 name", placeholderChar2: "Character 2 name",
@@ -684,14 +697,15 @@
       btnDownload: "💾 画像として保存",
       exportFrameTag: "✂︎ 点線の内側までが画像として保存されます",
       labelBio: "自己紹介", placeholderBio: "自由に自己紹介を書いてね",
-      labelNG: "NG", placeholderNG: "地雷・NG事項を書いてね",
-      labelAge: "年齢", labelParting: "手放し方", notSelected: "未選択",
+      labelNG: "NG事項", placeholderNG: "地雷・NG事項を書いてね",
+      labelAge: "年齢", labelParting: "リムーブについて", notSelected: "未選択",
       cycleOptions: { age: ["成人","未成年","非公開"], parting: ["ブロック","相互ブロック","リムーブ"] },
-      labelConsumption: "消費傾向", labelTweetStyle: "呟き傾向", placeholderFreeText: "自由記入",
+      labelCP: "CP", cpAll: "ALL", cpBL: "BL", cpGL: "百合", cpHL: "NL", cpNCP: "カプなし",
+      labelConsumption: "摂取傾向", labelTweetStyle: "ツイート傾向", placeholderFreeText: "自由記入",
       platformLabelDefault: "使用プラットフォーム", platformLabelAlt: "備考",
       toggleBtnToNote: "⇄ 備考へ", toggleBtnToPlatform: "⇄ プラットフォームへ", ariaToggleLabel: "ラベル切替",
       btnAddPair: "+ ペア追加", btnAddNote: "+ 備考追加",
-      statusbarHint: "ⓘ 写真はスクロールで拡大、ドラッグで移動できます。アップロード済みの枠は右クリック(スマホは長押し)で差し替えできます。",
+      statusbarHint: "ⓘ 写真はスクロール(スマホは2本指でピンチ)で拡大、ドラッグで移動できます。アップロード済みの枠は右クリック(スマホは長押し)で差し替えできます。",
       ariaDeletePair: "ペア削除", ariaDeleteNote: "備考削除",
       placeholderTitle: "タイトル", labelUpload: "アップロード",
       placeholderChar1: "キャラ1の名前", placeholderChar2: "キャラ2の名前",
@@ -1053,11 +1067,62 @@
     if(longPressTimer){ clearTimeout(longPressTimer); longPressTimer = null; }
   }
 
+  // ---------- 두 손가락 핀치 확대 (휴대폰) ----------
+  // 마우스 휠 확대는 데스크톱 전용이라, 휴대폰에서는 두 손가락으로 오므리고
+  // 벌리는 동작으로 같은 확대/축소를 할 수 있게 별도로 처리한다.
+  const slotPointers = new Map(); // slot -> Map(pointerId -> {x,y})
+  let pinch = null; // {slot, img, startDist, startScale}
+
+  function pointerDistance(p1, p2){
+    return Math.hypot(p1.x - p2.x, p1.y - p2.y);
+  }
+  function cleanupTouchPointer(e){
+    if(e.pointerType!=='touch') return;
+    for(const [slot, pts] of slotPointers){
+      if(pts.delete(e.pointerId)){
+        if(pinch && pinch.slot===slot && pts.size<2) pinch = null;
+        if(pts.size===0){
+          slotPointers.delete(slot);
+        } else if(pts.size===1){
+          // 손가락 하나가 남으면 그 손가락으로 계속 이동(드래그)할 수 있도록 이어준다
+          const [[pid, pt]] = [...pts.entries()];
+          const img = slot.querySelector('.preview-img');
+          if(img){
+            imgDrag = {
+              slot, img, pointerId:pid,
+              startX:pt.x, startY:pt.y,
+              origX:img._zoom.x, origY:img._zoom.y,
+              moved:true
+            };
+          }
+        }
+        break;
+      }
+    }
+  }
+
   document.addEventListener('pointerdown', e=>{
     const slot = e.target.closest('.img-slot, .bg-slot');
     if(!slot || !slot.classList.contains('has-image')) return;
     if(e.pointerType==='mouse' && e.button!==0) return; // 우클릭은 contextmenu에서 처리
     const img = slot.querySelector('.preview-img');
+
+    if(e.pointerType==='touch'){
+      let pts = slotPointers.get(slot);
+      if(!pts){ pts = new Map(); slotPointers.set(slot, pts); }
+      pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+      if(pts.size===2){
+        // 두 손가락이 모두 닿으면 핀치 확대 모드로 전환 (한 손가락 이동/꾹누르기는 취소)
+        cancelLongPress();
+        imgDrag = null;
+        const [p1, p2] = [...pts.values()];
+        pinch = {slot, img, startDist: pointerDistance(p1,p2), startScale: img._zoom.scale};
+        slot.setPointerCapture(e.pointerId);
+        return;
+      }
+      if(pts.size>2) return; // 세 손가락 이상은 무시
+    }
+
     imgDrag = {
       slot, img, pointerId:e.pointerId,
       startX:e.clientX, startY:e.clientY,
@@ -1080,6 +1145,22 @@
     }
   });
   document.addEventListener('pointermove', e=>{
+    if(e.pointerType==='touch'){
+      for(const [slot, pts] of slotPointers){
+        if(pts.has(e.pointerId)){
+          pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+          if(pinch && pinch.slot===slot && pts.size===2){
+            const [p1, p2] = [...pts.values()];
+            const dist = pointerDistance(p1, p2);
+            const z = pinch.img._zoom;
+            z.scale = Math.max(1, Math.min(4, pinch.startScale * (dist / pinch.startDist)));
+            clampZoom(slot, pinch.img);
+            applyZoomTransform(pinch.img);
+          }
+          break;
+        }
+      }
+    }
     if(!imgDrag || imgDrag.pointerId!==e.pointerId) return;
     const dx = e.clientX - imgDrag.startX;
     const dy = e.clientY - imgDrag.startY;
@@ -1094,11 +1175,13 @@
     applyZoomTransform(imgDrag.img);
   });
   document.addEventListener('pointerup', e=>{
+    cleanupTouchPointer(e);
     if(!imgDrag || imgDrag.pointerId!==e.pointerId) return;
     cancelLongPress();
     imgDrag = null;
   });
   document.addEventListener('pointercancel', e=>{
+    cleanupTouchPointer(e);
     if(!imgDrag || imgDrag.pointerId!==e.pointerId) return;
     cancelLongPress();
     imgDrag = null;
@@ -1263,6 +1346,17 @@
     ipad:   4 / 3    // 사과패드(아이패드 화면 비율)
   };
 
+  // 휴대폰처럼 화면이 좁을 때도, 카드 기준 폭을 잴 때만 잠깐 데스크톱 레이아웃으로
+  // 강제해서 재는 함수. 이렇게 해야 "정사각형/사과패드로 고정한 폭"이 PC와 항상 같다.
+  function withDesktopLayout(fn){
+    const already = document.body.classList.contains('exporting');
+    if(!already) document.body.classList.add('exporting');
+    void card.offsetHeight; // 강제 리플로우
+    const result = fn();
+    if(!already) document.body.classList.remove('exporting');
+    return result;
+  }
+
   function computeExpandedWidth(targetRatio){
     const cs = getComputedStyle(exportFrame);
     const padTop = parseFloat(cs.paddingTop) || 0;
@@ -1284,14 +1378,15 @@
       return;
     }
     // 카드 너비를 고정해서 늘어나는 여백이 오른쪽으로만 붙도록 함
+    // (화면이 좁은 휴대폰에서 처음 누르더라도, 데스크톱 기준 폭으로 고정한다)
     if(!card.dataset.frozenWidth){
-      card.dataset.frozenWidth = card.getBoundingClientRect().width;
+      card.dataset.frozenWidth = withDesktopLayout(()=> card.getBoundingClientRect().width);
     }
     card.style.width = card.dataset.frozenWidth + 'px';
     if(!exportFrame.dataset.basePadRight){
-      exportFrame.dataset.basePadRight = parseFloat(getComputedStyle(exportFrame).paddingRight);
+      exportFrame.dataset.basePadRight = withDesktopLayout(()=> parseFloat(getComputedStyle(exportFrame).paddingRight));
     }
-    exportFrame.style.width = computeExpandedWidth(RATIOS[key]) + 'px';
+    exportFrame.style.width = withDesktopLayout(()=> computeExpandedWidth(RATIOS[key])) + 'px';
   }
   // 내용(사진/텍스트/페어 추가삭제)이 바뀌어 카드 높이가 변하면 여백도 자동으로 재계산
   new ResizeObserver(()=>{
@@ -1427,8 +1522,14 @@
   applyLanguage(savedLang);
 
   document.getElementById('downloadBtn').addEventListener('click', ()=>{
+    const prevFrameWidth = exportFrame.style.width; // 나중에 원래(현재 화면 기준) 값으로 되돌리기 위해 저장
     document.body.classList.add('exporting');
     requestAnimationFrame(()=>{
+      // 비율(정사각형/사과패드)이 적용된 상태라면, 방금 강제된 데스크톱 레이아웃
+      // 기준(여백 크기 등)으로 프레임 폭을 한 번 더 맞춰서 PC와 동일한 비율로 저장한다.
+      if(currentRatio !== 'default'){
+        exportFrame.style.width = computeExpandedWidth(RATIOS[currentRatio]) + 'px';
+      }
       html2canvas(exportFrame, {
         backgroundColor:'#ffffff', scale:computeSafeExportScale(exportFrame), useCORS:true,
         onclone:(clonedDoc)=>{
@@ -1464,6 +1565,7 @@
         }
       }).then(canvas=>{
         document.body.classList.remove('exporting');
+        exportFrame.style.width = prevFrameWidth; // 화면 크기에 맞는 폭으로 복구
         const link = document.createElement('a');
         link.download = TRANSLATIONS[currentLang].filename;
         link.href = canvas.toDataURL('image/png');
@@ -1475,6 +1577,7 @@
         link.click();
       }).catch(err=>{
         document.body.classList.remove('exporting');
+        exportFrame.style.width = prevFrameWidth;
         alert(TRANSLATIONS[currentLang].alertSaveFail);
         console.error(err);
       });
