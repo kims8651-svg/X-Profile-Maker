@@ -1461,11 +1461,12 @@
   function fixImageSlotForExport(liveSlot, clonedSlot){
     // aspect-ratio / inset 등에 대한 html2canvas의 불완전한 지원 때문에
     // 슬롯 박스 크기가 어긋나는 것을 막기 위해, 실제 화면에서 이미 정확히
-    // 계산된 픽셀 크기를 그대로 고정해서 넣어준다.
+    // 계산된 픽셀 크기를 그대로 고정해서 넣어준다. (소수점 좌표는 html2canvas에서
+    // 서브픽셀 블러를 유발할 수 있어 정수로 반올림한다)
     const rect = liveSlot.getBoundingClientRect();
     if(rect.width && rect.height){
-      clonedSlot.style.width = rect.width + 'px';
-      clonedSlot.style.height = rect.height + 'px';
+      clonedSlot.style.width = Math.round(rect.width) + 'px';
+      clonedSlot.style.height = Math.round(rect.height) + 'px';
       clonedSlot.style.top = '';
       clonedSlot.style.left = '';
       clonedSlot.style.right = '';
@@ -1492,16 +1493,14 @@
     let baseW, baseH;
     if(nw/nh > cw/ch){ baseW = cw; baseH = cw * (nh/nw); }
     else { baseH = ch; baseW = ch * (nw/nh); }
-    const bgW = baseW * z.scale;
-    const bgH = baseH * z.scale;
-    const posX = (cw - bgW)/2 + z.x;
-    const posY = (ch - bgH)/2 + z.y;
 
-    clonedImg.style.setProperty('display','none','important');
-    clonedSlot.style.backgroundImage = `url("${liveImg.src}")`;
-    clonedSlot.style.backgroundRepeat = 'no-repeat';
-    clonedSlot.style.backgroundSize = `${bgW}px ${bgH}px`;
-    clonedSlot.style.backgroundPosition = `${posX}px ${posY}px`;
+    // 실제 <img>는 그대로 유지한다. html2canvas는 background-image보다
+    // <img> 엘리먼트를 그릴 때 훨씬 선명하게 렌더링하므로, 화면에 보이는 것과
+    // 동일한 translate+scale 트랜스폼을 정수 픽셀로만 재적용해 화질 저하를 막는다.
+    clonedImg.style.width = Math.round(baseW) + 'px';
+    clonedImg.style.height = Math.round(baseH) + 'px';
+    clonedImg.style.transform =
+      `translate(-50%, -50%) translate(${Math.round(z.x)}px, ${Math.round(z.y)}px) scale(${z.scale})`;
   }
 
   // iOS(아이폰/아이패드, 웹뷰 포함)는 브라우저 엔진이 전부 WebKit이라 캔버스 한 변이
