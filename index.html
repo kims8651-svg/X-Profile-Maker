@@ -132,6 +132,26 @@
   .download-row{width:100%;}
   .download-row .win98-btn{width:100%;padding:10px;font-size:13.5px;}
 
+  /* 저장 폴백 모달: 공유/다운로드가 안 통하는 기기에서, 결과 이미지를 화면에 띄워
+     '길게 눌러 저장'할 수 있게 하는 최후의 안전장치 */
+  .save-modal-overlay{
+    position:fixed;inset:0;background:rgba(20,20,18,.78);
+    display:none;align-items:center;justify-content:center;
+    z-index:9999;padding:20px;
+  }
+  .save-modal-overlay.show{display:flex;}
+  .save-modal{
+    background:var(--win-face);max-width:min(92vw,480px);max-height:92vh;
+    padding:14px;border:2px solid;border-color:var(--win-hi) var(--win-dk) var(--win-dk) var(--win-hi);
+    display:flex;flex-direction:column;gap:10px;align-items:stretch;
+  }
+  .save-modal-hint{font-size:13.5px;font-weight:bold;text-align:center;margin:0;color:var(--ink);}
+  .save-modal-subtext{font-size:11.5px;text-align:center;margin:-4px 0 0;color:var(--win-dk);}
+  .save-modal-img-wrap{max-height:55vh;overflow:auto;border:1px solid var(--win-lo);background:#00000014;}
+  .save-modal-img-wrap img{display:block;width:100%;height:auto;}
+  .save-modal-actions{display:flex;gap:8px;}
+  .save-modal-actions .win98-btn{flex:1;text-align:center;text-decoration:none;display:block;}
+
   /* 저장 비율 선택 버튼 (기본 / 정사각형 / 사과패드) */
   .ratio-group{display:flex;flex-wrap:wrap;gap:6px;}
   .ratio-btn{padding:7px 12px;font-size:12px;}
@@ -393,11 +413,12 @@
   .bg-slot.has-image{cursor:grab;}
   .bg-slot.has-image:active{cursor:grabbing;}
   /* 여백 장식 : 하얀 톤(스크린톤/하프톤) 오버레이 - 배경 위, 카드 아래 레이어.
-     촘촘한 작은 흰 점을 반복시켜, 개별 점보다는 전체적으로 하얗게 톤이 깔린 느낌을 냄 */
+     data URI 이미지 대신 순수 CSS 그라디언트로 그려서, 일부 구형 WebKit에서
+     data URI 배경 이미지가 캔버스 저장을 막는(SecurityError) 문제를 원천적으로 피한다. */
   .dots-layer{
     position:absolute;inset:0;pointer-events:none;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Ccircle cx='3' cy='3' r='1.5' fill='white'/%3E%3C/svg%3E");
-    background-repeat:repeat;
+    background-image:radial-gradient(circle at 3px 3px, #ffffff 1.5px, transparent 1.6px);
+    background-size:6px 6px;
     opacity:0;transition:opacity .15s;
   }
   .dots-layer.active{opacity:.6;}
@@ -644,6 +665,20 @@
   </div>
 </template>
 
+<div class="save-modal-overlay" id="saveModalOverlay">
+  <div class="save-modal">
+    <p class="save-modal-hint" data-i18n="modalSaveHint">이미지를 길게 눌러 '사진에 저장'을 선택하세요</p>
+    <p class="save-modal-subtext" data-i18n="modalSaveSubtext">다운로드가 자동으로 시작되지 않았을 때 사용하세요</p>
+    <div class="save-modal-img-wrap">
+      <img id="saveModalImg" alt="">
+    </div>
+    <div class="save-modal-actions">
+      <a class="win98-btn" id="saveModalDownloadLink" download data-i18n="modalSaveDownloadBtn">⬇️ 다운로드</a>
+      <button class="win98-btn" id="saveModalCloseBtn" type="button" data-i18n="modalSaveCloseBtn">닫기</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
   // ---------- i18n: 한국어 / English / 日本語 ----------
@@ -651,6 +686,9 @@
     ko: {
       pageTitle: "낭만 프로필 소개표 메이커",
       filename: "낭만_프로필_소개표.png",
+      modalSaveHint: "이미지를 길게 눌러 '사진에 저장'을 선택하세요",
+      modalSaveSubtext: "다운로드가 자동으로 시작되지 않았을 때 사용하세요",
+      modalSaveDownloadBtn: "⬇️ 다운로드", modalSaveCloseBtn: "닫기",
       titlebarTheme: "🎨 테마 색상 설정",
       palettePastel: "파스텔", paletteVivid: "비비드", paletteDeep: "딥톤", paletteNeutral: "뉴트럴",
       labelCustomPick: "직접 선택", titleCurrentColor: "현재 색상",
@@ -679,6 +717,9 @@
     en: {
       pageTitle: "Romantic X Profile Maker",
       filename: "romantic_profile_card.png",
+      modalSaveHint: "Press and hold the image, then choose \"Save Image\"",
+      modalSaveSubtext: "Use this if the download didn't start automatically",
+      modalSaveDownloadBtn: "⬇️ Download", modalSaveCloseBtn: "Close",
       titlebarTheme: "🎨 Theme Settings",
       palettePastel: "Pastel", paletteVivid: "Vivid", paletteDeep: "Deep", paletteNeutral: "Neutral",
       labelCustomPick: "Custom", titleCurrentColor: "Current Color",
@@ -707,6 +748,9 @@
     ja: {
       pageTitle: "ロマンスXプロフィールメーカー",
       filename: "ロマンスプロフカード.png",
+      modalSaveHint: "画像を長押しして「画像を保存」を選んでください",
+      modalSaveSubtext: "自動でダウンロードが始まらなかった場合はこちらをご利用ください",
+      modalSaveDownloadBtn: "⬇️ ダウンロード", modalSaveCloseBtn: "閉じる",
       titlebarTheme: "🎨 テーマカラー設定",
       palettePastel: "パステル", paletteVivid: "ビビッド", paletteDeep: "ディープトーン", paletteNeutral: "ニュートラル",
       labelCustomPick: "自分で選択", titleCurrentColor: "現在の色",
@@ -1547,6 +1591,18 @@
   try{ savedLang = localStorage.getItem('romanticProfileLang') || 'ko'; }catch(e){}
   applyLanguage(savedLang);
 
+  // ---------- 저장 폴백 모달 닫기 ----------
+  document.getElementById('saveModalCloseBtn').addEventListener('click', ()=>{
+    const overlay = document.getElementById('saveModalOverlay');
+    const modalImg = document.getElementById('saveModalImg');
+    overlay.classList.remove('show');
+    if(modalImg.src) URL.revokeObjectURL(modalImg.src);
+    modalImg.src = '';
+  });
+  document.getElementById('saveModalOverlay').addEventListener('click', e=>{
+    if(e.target.id === 'saveModalOverlay') document.getElementById('saveModalCloseBtn').click();
+  });
+
   document.getElementById('downloadBtn').addEventListener('click', ()=>{
     const prevFrameWidth = exportFrame.style.width; // 나중에 원래(현재 화면 기준) 값으로 되돌리기 위해 저장
     document.body.classList.add('exporting');
@@ -1592,15 +1648,59 @@
       }).then(canvas=>{
         document.body.classList.remove('exporting');
         exportFrame.style.width = prevFrameWidth; // 화면 크기에 맞는 폭으로 복구
-        const link = document.createElement('a');
-        link.download = TRANSLATIONS[currentLang].filename;
-        link.href = canvas.toDataURL('image/png');
-        // 일부 구형 iOS Safari는 download 속성을 무시하고 현재 페이지를 통째로
-        // 이미지로 이동(navigate)시켜버릴 수 있어, 새 탭에서 열리도록 안전장치를 둔다.
-        // (download가 정상 지원되는 브라우저에서는 이 값이 별도 영향을 주지 않는다.)
-        link.target = '_blank';
-        link.rel = 'noopener';
-        link.click();
+        canvas.toBlob(blob=>{
+          if(!blob){
+            alert(TRANSLATIONS[currentLang].alertSaveFail);
+            return;
+          }
+          const filename = TRANSLATIONS[currentLang].filename;
+          const url = URL.createObjectURL(blob);
+
+          // 모달/다운로드 버튼에 결과 이미지를 미리 채워둔다 (공유가 성공해도
+          // 사용자가 다시 열어볼 필요는 없지만, 실패/미지원 시 바로 쓸 수 있게 준비)
+          const modalImg = document.getElementById('saveModalImg');
+          const modalDownloadLink = document.getElementById('saveModalDownloadLink');
+          modalImg.src = url;
+          modalDownloadLink.href = url;
+          modalDownloadLink.download = filename;
+
+          const showFallbackModal = ()=>{
+            document.getElementById('saveModalOverlay').classList.add('show');
+          };
+
+          // 저장 버튼을 누르면 기본적으로 미리보기 모달을 항상 띄운다 (우클릭/길게 눌러
+          // 저장 가능하도록). 이는 아래 자동 저장(공유 시트 또는 다운로드) 시도와는
+          // 별개로 항상 실행되며, 자동 저장이 실패했을 때를 대비한 최후의 수단이자
+          // 성공했을 때도 바로 확인할 수 있는 기본 노출 창 역할을 한다.
+          showFallbackModal();
+
+          const file = new File([blob], filename, {type:'image/png'});
+          const canUseShare = !!(navigator.share && navigator.canShare && navigator.canShare({files:[file]}));
+
+          if(canUseShare){
+            // 지원 기기에서는 OS 기본 공유 시트도 함께 띄운다. 공유 시트는 모달과
+            // 별개의 네이티브 UI라 위에 겹쳐 뜨며, 사용자가 공유를 취소하거나 실패해도
+            // 모달은 이미 떠 있으므로 그대로 저장할 수 있다.
+            navigator.share({files:[file], title:filename}).catch(err=>{
+              // 사용자가 직접 취소한 경우(AbortError)가 아니면 콘솔에만 남긴다 —
+              // 모달이 이미 대체 저장 수단으로 떠 있으므로 별도 처리는 불필요.
+              if(err && err.name !== 'AbortError') console.error(err);
+            });
+          }else{
+            // 공유가 안 되는 환경: 표준 다운로드도 함께 시도한다 (자동 저장 기능 유지).
+            try{
+              const link = document.createElement('a');
+              link.download = filename;
+              link.href = url;
+              link.rel = 'noopener';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            }catch(e){
+              console.error(e);
+            }
+          }
+        }, 'image/png');
       }).catch(err=>{
         document.body.classList.remove('exporting');
         exportFrame.style.width = prevFrameWidth;
