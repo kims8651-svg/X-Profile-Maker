@@ -56,6 +56,19 @@
     color:#fff;font-weight:bold;font-size:12.5px;letter-spacing:.2px;
     text-shadow:1px 1px 1px rgba(0,0,0,.3);
     user-select:none;cursor:default;
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+  }
+  .lang-toggle-group{display:flex;gap:0;flex-shrink:0;}
+  .lang-btn{
+    font-family:inherit;font-size:11px;font-weight:bold;color:var(--ink);
+    background:var(--win-face);
+    border:2px solid;border-color:var(--win-hi) var(--win-dk) var(--win-dk) var(--win-hi);
+    padding:4px 8px;cursor:pointer;user-select:none;text-shadow:none;
+  }
+  .lang-btn:active{border-color:var(--win-lo) var(--win-hi) var(--win-hi) var(--win-lo);}
+  .lang-btn.active{
+    background:var(--c-base-light);color:var(--c-base-darker);
+    border-color:var(--win-lo) var(--win-hi) var(--win-hi) var(--win-lo);
   }
   .props-body{padding:12px 14px;display:flex;flex-direction:column;gap:12px;}
   .props-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
@@ -404,30 +417,37 @@
 <div class="page">
 
   <div class="props-window no-export">
-    <div class="props-titlebar">🎨 테마 색상 설정</div>
+    <div class="props-titlebar">
+      <span data-i18n="titlebarTheme">🎨 테마 색상 설정</span>
+      <div class="lang-toggle-group no-export">
+        <button type="button" class="lang-btn active" data-lang="ko">한국어</button>
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="ja">日</button>
+      </div>
+    </div>
     <div class="props-body">
 
       <div class="palette-section">
-        <span class="palette-row-label">파스텔</span>
+        <span class="palette-row-label" data-i18n="palettePastel">파스텔</span>
         <div class="palette" id="swatchesPastel"></div>
       </div>
       <div class="palette-section">
-        <span class="palette-row-label">비비드</span>
+        <span class="palette-row-label" data-i18n="paletteVivid">비비드</span>
         <div class="palette" id="swatchesVivid"></div>
       </div>
       <div class="palette-section">
-        <span class="palette-row-label">딥톤</span>
+        <span class="palette-row-label" data-i18n="paletteDeep">딥톤</span>
         <div class="palette" id="swatchesDeep"></div>
       </div>
       <div class="palette-section">
-        <span class="palette-row-label">뉴트럴</span>
+        <span class="palette-row-label" data-i18n="paletteNeutral">뉴트럴</span>
         <div class="palette" id="swatchesNeutral"></div>
       </div>
 
       <div class="custom-picker">
         <div class="props-row">
-          <span class="props-label">직접 선택</span>
-          <span class="current-swatch" id="currentSwatch" title="현재 색상"></span>
+          <span class="props-label" data-i18n="labelCustomPick">직접 선택</span>
+          <span class="current-swatch" id="currentSwatch" data-i18n-title="titleCurrentColor" title="현재 색상"></span>
           <input type="text" id="hexInput" class="hex-input" maxlength="7" spellcheck="false">
         </div>
         <div class="picker-canvas-wrap">
@@ -441,23 +461,23 @@
       </div>
 
       <div class="props-row" style="margin-bottom:2px;">
-        <span class="props-label">여백 배경</span>
-        <button class="win98-btn" id="bgImageBtn" type="button">🖼️ 이미지 선택</button>
-        <button class="win98-btn" id="bgImageResetBtn" type="button">↺ 기본값</button>
+        <span class="props-label" data-i18n="labelBgImage">여백 배경</span>
+        <button class="win98-btn" id="bgImageBtn" type="button" data-i18n="btnChooseImage">🖼️ 이미지 선택</button>
+        <button class="win98-btn" id="bgImageResetBtn" type="button" data-i18n="btnResetDefault">↺ 기본값</button>
         <input type="file" accept="image/*" id="bgImageInput" hidden>
       </div>
 
       <div class="props-row" style="margin-bottom:2px;">
-        <span class="props-label">저장 비율</span>
+        <span class="props-label" data-i18n="labelSaveRatio">저장 비율</span>
         <div class="ratio-group" id="ratioGroup">
-          <button class="win98-btn ratio-btn selected" type="button" data-ratio="default">기본</button>
-          <button class="win98-btn ratio-btn" type="button" data-ratio="square">정사각형</button>
-          <button class="win98-btn ratio-btn" type="button" data-ratio="ipad">사과패드</button>
+          <button class="win98-btn ratio-btn selected" type="button" data-ratio="default" data-i18n="ratioDefault">기본</button>
+          <button class="win98-btn ratio-btn" type="button" data-ratio="square" data-i18n="ratioSquare">정사각형</button>
+          <button class="win98-btn ratio-btn" type="button" data-ratio="ipad" data-i18n="ratioIpad">사과패드</button>
         </div>
       </div>
 
       <div class="props-row download-row">
-        <button class="win98-btn" id="downloadBtn" type="button">💾 이미지로 저장</button>
+        <button class="win98-btn" id="downloadBtn" type="button" data-i18n="btnDownload">💾 이미지로 저장</button>
       </div>
     </div>
   </div>
@@ -467,7 +487,7 @@
       <img class="preview-img" id="bgPreviewImg">
     </div>
     <div class="export-frame-content">
-    <span class="export-frame-tag no-export">✂︎ 점선 안쪽까지 이미지로 저장돼요</span>
+    <span class="export-frame-tag no-export" data-i18n="exportFrameTag">✂︎ 점선 안쪽까지 이미지로 저장돼요</span>
     <div class="win98-window" id="card">
     <div class="window-body">
       <div class="section profile-section">
@@ -477,39 +497,39 @@
           <div class="field identity-card">
             <div class="img-slot identity" data-role="profile">
               <img class="preview-img">
-              <div class="img-placeholder">📷<br>업로드</div>
+              <div class="img-placeholder">📷<br><span data-i18n="labelUpload">업로드</span></div>
               <input type="file" accept="image/*" class="file-input" hidden>
             </div>
             <div class="id-texts">
-              <input type="text" class="nickname-input" placeholder="닉네임">
+              <input type="text" class="nickname-input" data-i18n-placeholder="placeholderNickname" placeholder="닉네임">
               <div class="id-field">
                 <span class="at-sign">@</span>
-                <input type="text" class="id-input" placeholder="아이디">
+                <input type="text" class="id-input" data-i18n-placeholder="placeholderHandle" placeholder="아이디">
               </div>
             </div>
           </div>
 
           <div class="field">
-            <label class="field-label">소개</label>
-            <textarea class="system-text" placeholder="자유롭게 자기소개를 적어주세요"></textarea>
+            <label class="field-label" data-i18n="labelBio">소개</label>
+            <textarea class="system-text" data-i18n-placeholder="placeholderBio" placeholder="자유롭게 자기소개를 적어주세요"></textarea>
           </div>
 
           <div class="field">
-            <label class="field-label">NG</label>
-            <textarea class="system-text" placeholder="지양하는 것들을 적어주세요"></textarea>
+            <label class="field-label" data-i18n="labelNG">NG</label>
+            <textarea class="system-text" data-i18n-placeholder="placeholderNG" placeholder="지양하는 것들을 적어주세요"></textarea>
           </div>
 
           <div class="field-row">
             <div class="field cycle-field">
-              <label class="field-label">나이</label>
-              <button type="button" class="cycle-toggle" data-options="성인,미성년자,비공개">
+              <label class="field-label" data-i18n="labelAge">나이</label>
+              <button type="button" class="cycle-toggle" data-cycle-key="age">
                 <span class="cycle-value">선택 안 함</span>
                 <span class="cycle-arrow">⟳</span>
               </button>
             </div>
             <div class="field cycle-field">
-              <label class="field-label">이별</label>
-              <button type="button" class="cycle-toggle" data-options="블락,블블,언팔">
+              <label class="field-label" data-i18n="labelParting">이별</label>
+              <button type="button" class="cycle-toggle" data-cycle-key="parting">
                 <span class="cycle-value">선택 안 함</span>
                 <span class="cycle-arrow">⟳</span>
               </button>
@@ -528,21 +548,21 @@
           </div>
 
           <div class="field">
-            <label class="field-label">소비 성향</label>
-            <textarea class="textarea-input compact" placeholder="자유기재" rows="1"></textarea>
+            <label class="field-label" data-i18n="labelConsumption">소비 성향</label>
+            <textarea class="textarea-input compact" data-i18n-placeholder="placeholderFreeText" placeholder="자유기재" rows="1"></textarea>
           </div>
 
           <div class="field">
-            <label class="field-label">트윗 성향</label>
-            <textarea class="textarea-input compact" placeholder="자유기재" rows="1"></textarea>
+            <label class="field-label" data-i18n="labelTweetStyle">트윗 성향</label>
+            <textarea class="textarea-input compact" data-i18n-placeholder="placeholderFreeText" placeholder="자유기재" rows="1"></textarea>
           </div>
 
           <div class="field" style="margin-bottom:0;">
             <div class="field-label-row">
-              <label class="field-label" id="platformLabel" data-default="사용 플랫폼" data-alt="비고">사용 플랫폼</label>
-              <button type="button" class="label-toggle-btn no-export" id="platformLabelToggle" aria-label="라벨 전환">⇄ 비고로</button>
+              <label class="field-label" id="platformLabel" data-is-alt="false">사용 플랫폼</label>
+              <button type="button" class="label-toggle-btn no-export" id="platformLabelToggle" data-i18n-aria="ariaToggleLabel" aria-label="라벨 전환">⇄ 비고로</button>
             </div>
-            <textarea class="textarea-input compact" placeholder="자유기재" rows="1"></textarea>
+            <textarea class="textarea-input compact" data-i18n-placeholder="placeholderFreeText" placeholder="자유기재" rows="1"></textarea>
           </div>
 
         </div>
@@ -553,8 +573,8 @@
         <div class="section-body">
           <div class="pair-list" id="pairList"></div>
           <div class="cp-actions no-export">
-            <button class="add-item-btn" id="addPairBtn" type="button">+ 페어 추가</button>
-            <button class="add-item-btn" id="addNoteBtn" type="button">+ 비고 추가</button>
+            <button class="add-item-btn" id="addPairBtn" type="button" data-i18n="btnAddPair">+ 페어 추가</button>
+            <button class="add-item-btn" id="addNoteBtn" type="button" data-i18n="btnAddNote">+ 비고 추가</button>
           </div>
         </div>
       </div>
@@ -563,42 +583,144 @@
     </div>
   </div>
 
-  <div class="statusbar no-export">ⓘ 사진은 스크롤로 확대 및 이동 할 수 있어요. 이미 업로드된 칸은 우클릭으로(휴대폰은 꾹누르기로) 바꿀 수 있어요.</div>
+  <div class="statusbar no-export" data-i18n="statusbarHint">ⓘ 사진은 스크롤로 확대 및 이동 할 수 있어요. 이미 업로드된 칸은 우클릭으로(휴대폰은 꾹누르기로) 바꿀 수 있어요.</div>
 </div>
 
 <template id="pairTemplate">
   <div class="pair-card">
-    <button class="pair-delete no-export" type="button" aria-label="페어 삭제">×</button>
-    <input type="text" class="text-input pair-name-input" placeholder="제목">
+    <button class="pair-delete no-export" type="button" data-i18n-aria="ariaDeletePair" aria-label="페어 삭제">×</button>
+    <input type="text" class="text-input pair-name-input" data-i18n-placeholder="placeholderTitle" placeholder="제목">
     <div class="pair-grid">
       <div class="img-slot" data-role="char">
         <img class="preview-img">
-        <div class="img-placeholder">📷<br>업로드</div>
+        <div class="img-placeholder">📷<br><span data-i18n="labelUpload">업로드</span></div>
         <input type="file" accept="image/*" class="file-input" hidden>
       </div>
       <div class="img-slot" data-role="char">
         <img class="preview-img">
-        <div class="img-placeholder">📷<br>업로드</div>
+        <div class="img-placeholder">📷<br><span data-i18n="labelUpload">업로드</span></div>
         <input type="file" accept="image/*" class="file-input" hidden>
       </div>
-      <input type="text" class="text-input small-input" placeholder="캐릭터1 이름">
-      <input type="text" class="text-input small-input" placeholder="캐릭터2 이름">
+      <input type="text" class="text-input small-input" data-i18n-placeholder="placeholderChar1" placeholder="캐릭터1 이름">
+      <input type="text" class="text-input small-input" data-i18n-placeholder="placeholderChar2" placeholder="캐릭터2 이름">
     </div>
   </div>
 </template>
 
 <template id="noteTemplate">
   <div class="note-card">
-    <button class="pair-delete no-export" type="button" aria-label="비고 삭제">×</button>
+    <button class="pair-delete no-export" type="button" data-i18n-aria="ariaDeleteNote" aria-label="비고 삭제">×</button>
     <div class="note-row">
       <span class="note-arrow" aria-hidden="true">↳</span>
-      <textarea class="textarea-input note-textarea" placeholder="CP에 대한 비고를 자유롭게 적어주세요"></textarea>
+      <textarea class="textarea-input note-textarea" data-i18n-placeholder="placeholderNoteText" placeholder="CP에 대한 비고를 자유롭게 적어주세요"></textarea>
     </div>
   </div>
 </template>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
+  // ---------- i18n: 한국어 / English / 日本語 ----------
+  const TRANSLATIONS = {
+    ko: {
+      pageTitle: "낭만 프로필 소개표 메이커",
+      filename: "낭만_프로필_소개표.png",
+      titlebarTheme: "🎨 테마 색상 설정",
+      palettePastel: "파스텔", paletteVivid: "비비드", paletteDeep: "딥톤", paletteNeutral: "뉴트럴",
+      labelCustomPick: "직접 선택", titleCurrentColor: "현재 색상",
+      labelBgImage: "여백 배경", btnChooseImage: "🖼️ 이미지 선택", btnResetDefault: "↺ 기본값",
+      labelSaveRatio: "저장 비율", ratioDefault: "기본", ratioSquare: "정사각형", ratioIpad: "사과패드",
+      btnDownload: "💾 이미지로 저장",
+      exportFrameTag: "✂︎ 점선 안쪽까지 이미지로 저장돼요",
+      labelBio: "소개", placeholderBio: "자유롭게 자기소개를 적어주세요",
+      labelNG: "NG", placeholderNG: "지양하는 것들을 적어주세요",
+      labelAge: "나이", labelParting: "이별", notSelected: "선택 안 함",
+      cycleOptions: { age: ["성인","미성년자","비공개"], parting: ["블락","블블","언팔"] },
+      labelConsumption: "소비 성향", labelTweetStyle: "트윗 성향", placeholderFreeText: "자유기재",
+      platformLabelDefault: "사용 플랫폼", platformLabelAlt: "비고",
+      toggleBtnToNote: "⇄ 비고로", toggleBtnToPlatform: "⇄ 플랫폼으로", ariaToggleLabel: "라벨 전환",
+      btnAddPair: "+ 페어 추가", btnAddNote: "+ 비고 추가",
+      statusbarHint: "ⓘ 사진은 스크롤로 확대 및 이동 할 수 있어요. 이미 업로드된 칸은 우클릭으로(휴대폰은 꾹누르기로) 바꿀 수 있어요.",
+      ariaDeletePair: "페어 삭제", ariaDeleteNote: "비고 삭제",
+      placeholderTitle: "제목", labelUpload: "업로드",
+      placeholderChar1: "캐릭터1 이름", placeholderChar2: "캐릭터2 이름",
+      placeholderNoteText: "CP에 대한 비고를 자유롭게 적어주세요",
+      placeholderNickname: "닉네임", placeholderHandle: "아이디",
+      alertSaveFail: "이미지 저장에 실패했어요. 잠시 후 다시 시도해주세요!"
+    },
+    en: {
+      pageTitle: "Romantic X Profile Maker",
+      filename: "romantic_profile_card.png",
+      titlebarTheme: "🎨 Theme Settings",
+      palettePastel: "Pastel", paletteVivid: "Vivid", paletteDeep: "Deep", paletteNeutral: "Neutral",
+      labelCustomPick: "Custom", titleCurrentColor: "Current Color",
+      labelBgImage: "Background", btnChooseImage: "🖼️ Choose Image", btnResetDefault: "↺ Reset",
+      labelSaveRatio: "Aspect Ratio", ratioDefault: "Default", ratioSquare: "Square", ratioIpad: "iPad",
+      btnDownload: "💾 Save as Image",
+      exportFrameTag: "✂︎ Everything inside the dashed line gets saved",
+      labelBio: "Bio", placeholderBio: "Write a little something about yourself",
+      labelNG: "DNI", placeholderNG: "List what you'd rather avoid",
+      labelAge: "Age", labelParting: "Parting", notSelected: "Not set",
+      cycleOptions: { age: ["Adult","Minor","Private"], parting: ["Block","Mutual Block","Unfollow"] },
+      labelConsumption: "Reading Prefs", labelTweetStyle: "Tweet Style", placeholderFreeText: "Write freely",
+      platformLabelDefault: "Platforms", platformLabelAlt: "Notes",
+      toggleBtnToNote: "⇄ To Notes", toggleBtnToPlatform: "⇄ To Platforms", ariaToggleLabel: "Toggle label",
+      btnAddPair: "+ Add Pair", btnAddNote: "+ Add Note",
+      statusbarHint: "ⓘ Scroll to zoom, drag to reposition photos. Right-click (long-press on mobile) an uploaded slot to replace it.",
+      ariaDeletePair: "Delete pair", ariaDeleteNote: "Delete note",
+      placeholderTitle: "Title", labelUpload: "Upload",
+      placeholderChar1: "Character 1 name", placeholderChar2: "Character 2 name",
+      placeholderNoteText: "Feel free to add any notes about this CP",
+      placeholderNickname: "Nickname", placeholderHandle: "Handle",
+      alertSaveFail: "Couldn't save the image — please try again in a moment!"
+    },
+    ja: {
+      pageTitle: "ロマンスXプロフィールメーカー",
+      filename: "ロマンスプロフカード.png",
+      titlebarTheme: "🎨 テーマカラー設定",
+      palettePastel: "パステル", paletteVivid: "ビビッド", paletteDeep: "ディープトーン", paletteNeutral: "ニュートラル",
+      labelCustomPick: "自分で選択", titleCurrentColor: "現在の色",
+      labelBgImage: "背景", btnChooseImage: "🖼️ 画像を選ぶ", btnResetDefault: "↺ デフォルトに戻す",
+      labelSaveRatio: "保存比率", ratioDefault: "デフォルト", ratioSquare: "正方形", ratioIpad: "iPad",
+      btnDownload: "💾 画像として保存",
+      exportFrameTag: "✂︎ 点線の内側までが画像として保存されます",
+      labelBio: "自己紹介", placeholderBio: "自由に自己紹介を書いてね",
+      labelNG: "NG", placeholderNG: "地雷・NG事項を書いてね",
+      labelAge: "年齢", labelParting: "手放し方", notSelected: "未選択",
+      cycleOptions: { age: ["成人","未成年","非公開"], parting: ["ブロック","相互ブロック","リムーブ"] },
+      labelConsumption: "消費傾向", labelTweetStyle: "呟き傾向", placeholderFreeText: "自由記入",
+      platformLabelDefault: "使用プラットフォーム", platformLabelAlt: "備考",
+      toggleBtnToNote: "⇄ 備考へ", toggleBtnToPlatform: "⇄ プラットフォームへ", ariaToggleLabel: "ラベル切替",
+      btnAddPair: "+ ペア追加", btnAddNote: "+ 備考追加",
+      statusbarHint: "ⓘ 写真はスクロールで拡大、ドラッグで移動できます。アップロード済みの枠は右クリック(スマホは長押し)で差し替えできます。",
+      ariaDeletePair: "ペア削除", ariaDeleteNote: "備考削除",
+      placeholderTitle: "タイトル", labelUpload: "アップロード",
+      placeholderChar1: "キャラ1の名前", placeholderChar2: "キャラ2の名前",
+      placeholderNoteText: "CPについて自由に備考をどうぞ",
+      placeholderNickname: "ニックネーム", placeholderHandle: "ID",
+      alertSaveFail: "画像の保存に失敗しました。少し経ってからもう一度お試しください!"
+    }
+  };
+  let currentLang = 'ko';
+  function translateNode(root){
+    const t = TRANSLATIONS[currentLang];
+    root.querySelectorAll('[data-i18n]').forEach(el=>{
+      const key = el.dataset.i18n;
+      if(t[key]!==undefined) el.textContent = t[key];
+    });
+    root.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
+      const key = el.dataset.i18nPlaceholder;
+      if(t[key]!==undefined) el.placeholder = t[key];
+    });
+    root.querySelectorAll('[data-i18n-aria]').forEach(el=>{
+      const key = el.dataset.i18nAria;
+      if(t[key]!==undefined) el.setAttribute('aria-label', t[key]);
+    });
+    root.querySelectorAll('[data-i18n-title]').forEach(el=>{
+      const key = el.dataset.i18nTitle;
+      if(t[key]!==undefined) el.setAttribute('title', t[key]);
+    });
+  }
+
   // ---------- color helpers ----------
   function hexToRgb(hex){
     hex = hex.replace('#','');
@@ -1005,26 +1127,33 @@
   });
 
   // ---------- platform label toggle: 사용 플랫폼 ⇄ 비고 ----------
-  (function(){
-    const label = document.getElementById('platformLabel');
-    const toggleBtn = document.getElementById('platformLabelToggle');
-    if(label && toggleBtn){
-      toggleBtn.addEventListener('click', ()=>{
-        const isAlt = label.textContent === label.dataset.alt;
-        label.textContent = isAlt ? label.dataset.default : label.dataset.alt;
-        toggleBtn.textContent = isAlt ? '⇄ 비고로' : '⇄ 플랫폼으로';
-      });
-    }
-  })();
+  const platformLabel = document.getElementById('platformLabel');
+  const platformToggleBtn = document.getElementById('platformLabelToggle');
+  function renderPlatformToggle(){
+    if(!platformLabel || !platformToggleBtn) return;
+    const t = TRANSLATIONS[currentLang];
+    const isAlt = platformLabel.dataset.isAlt === 'true';
+    platformLabel.textContent = isAlt ? t.platformLabelAlt : t.platformLabelDefault;
+    platformToggleBtn.textContent = isAlt ? t.toggleBtnToPlatform : t.toggleBtnToNote;
+  }
+  if(platformLabel && platformToggleBtn){
+    platformToggleBtn.addEventListener('click', ()=>{
+      platformLabel.dataset.isAlt = platformLabel.dataset.isAlt === 'true' ? 'false' : 'true';
+      renderPlatformToggle();
+    });
+  }
+  renderPlatformToggle();
 
   // ---------- cycle-toggle: click advances through options (incl. unselected) ----------
+  const cycleControllers = [];
   document.querySelectorAll('.cycle-toggle').forEach(btn=>{
-    const options = btn.dataset.options.split(',');
+    const key = btn.dataset.cycleKey;
     const valueEl = btn.querySelector('.cycle-value');
-    let index = -1; // -1 = 선택 안 함
+    let index = -1; // -1 = 선택 안 함 / not set
     function render(){
+      const options = TRANSLATIONS[currentLang].cycleOptions[key];
       if(index===-1){
-        valueEl.textContent = '선택 안 함';
+        valueEl.textContent = TRANSLATIONS[currentLang].notSelected;
         btn.classList.remove('selected');
       } else {
         valueEl.textContent = options[index];
@@ -1032,10 +1161,12 @@
       }
     }
     btn.addEventListener('click', ()=>{
+      const options = TRANSLATIONS[currentLang].cycleOptions[key];
       index += 1;
       if(index >= options.length) index = -1;
       render();
     });
+    cycleControllers.push(render);
     render();
   });
 
@@ -1070,10 +1201,12 @@
   const noteTemplate = document.getElementById('noteTemplate');
   function addPair(){
     pairList.appendChild(pairTemplate.content.cloneNode(true));
+    translateNode(pairList);
   }
   function addNote(){
     pairList.appendChild(noteTemplate.content.cloneNode(true));
     pairList.querySelectorAll('.note-textarea').forEach(autoGrowTextarea);
+    translateNode(pairList);
   }
   document.getElementById('addPairBtn').addEventListener('click', addPair);
   document.getElementById('addNoteBtn').addEventListener('click', addNote);
@@ -1272,6 +1405,27 @@
     return scale;
   }
 
+  // ---------- language switcher init ----------
+  document.querySelectorAll('.lang-btn').forEach(b=>{
+    b.addEventListener('click', ()=>applyLanguage(b.dataset.lang));
+  });
+  function applyLanguage(lang){
+    if(!TRANSLATIONS[lang]) return;
+    currentLang = lang;
+    try{ localStorage.setItem('romanticProfileLang', lang); }catch(e){}
+    document.documentElement.lang = lang;
+    document.title = TRANSLATIONS[lang].pageTitle;
+    translateNode(document);
+    document.querySelectorAll('.lang-btn').forEach(b=>{
+      b.classList.toggle('active', b.dataset.lang===lang);
+    });
+    cycleControllers.forEach(render=>render());
+    renderPlatformToggle();
+  }
+  let savedLang = 'ko';
+  try{ savedLang = localStorage.getItem('romanticProfileLang') || 'ko'; }catch(e){}
+  applyLanguage(savedLang);
+
   document.getElementById('downloadBtn').addEventListener('click', ()=>{
     document.body.classList.add('exporting');
     requestAnimationFrame(()=>{
@@ -1311,7 +1465,7 @@
       }).then(canvas=>{
         document.body.classList.remove('exporting');
         const link = document.createElement('a');
-        link.download = '낭만_프로필_소개표.png';
+        link.download = TRANSLATIONS[currentLang].filename;
         link.href = canvas.toDataURL('image/png');
         // 일부 구형 iOS Safari는 download 속성을 무시하고 현재 페이지를 통째로
         // 이미지로 이동(navigate)시켜버릴 수 있어, 새 탭에서 열리도록 안전장치를 둔다.
@@ -1321,7 +1475,7 @@
         link.click();
       }).catch(err=>{
         document.body.classList.remove('exporting');
-        alert('이미지 저장에 실패했어요. 잠시 후 다시 시도해주세요!');
+        alert(TRANSLATIONS[currentLang].alertSaveFail);
         console.error(err);
       });
     });
