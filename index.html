@@ -159,8 +159,8 @@
     background:var(--c-base-light);color:var(--c-base-darker);
     border-color:var(--win-lo) var(--win-hi) var(--win-hi) var(--win-lo);
   }
-  .dots-btn{padding:7px 12px;font-size:12px;}
-  .dots-btn.active{
+  .toggle-btn{padding:7px 12px;font-size:12px;}
+  .toggle-btn.active{
     background:var(--c-base-light);color:var(--c-base-darker);
     border-color:var(--win-lo) var(--win-hi) var(--win-hi) var(--win-lo);
   }
@@ -412,6 +412,15 @@
   }
   .bg-slot.has-image{cursor:grab;}
   .bg-slot.has-image:active{cursor:grabbing;}
+  /* 여백 배경의 아랫단 블러 레이어 : 업로드 이미지를 확대+블러 처리해 미리 구워둔 것.
+     사용자가 조작하는 위쪽 선명한 사진(#bgPreviewImg)이 프레임을 다 못 채워도
+     이 레이어가 비슷한 색감으로 빈틈을 채워준다. 조작 대상이 아니므로 pointer-events 차단. */
+  .bg-blur-img{
+    position:absolute;top:50%;left:50%;
+    max-width:none;max-height:none;display:none;
+    transform-origin:center center;
+    pointer-events:none;user-select:none;
+  }
   /* 여백 장식 : 하얀 톤(스크린톤/하프톤) 오버레이 - 배경 위, 카드 아래 레이어.
      data URI 이미지 대신 순수 CSS 그라디언트로 그려서, 일부 구형 WebKit에서
      data URI 배경 이미지가 캔버스 저장을 막는(SecurityError) 문제를 원천적으로 피한다. */
@@ -510,7 +519,8 @@
         <span class="props-label" data-i18n="labelBgImage">여백 배경</span>
         <button class="win98-btn" id="bgImageBtn" type="button" data-i18n="btnChooseImage">🖼️ 이미지 선택</button>
         <button class="win98-btn" id="bgImageResetBtn" type="button" data-i18n="btnResetDefault">↺ 기본값</button>
-        <button class="win98-btn dots-btn" id="dotsToggleBtn" type="button" data-i18n="btnDots">✨ 흰점 추가</button>
+        <button class="win98-btn toggle-btn active" id="bgBlurToggleBtn" type="button" data-i18n="btnBgBlur">🌫️ 배경 블러</button>
+        <button class="win98-btn toggle-btn" id="dotsToggleBtn" type="button" data-i18n="btnDots">✨ 흰점 추가</button>
         <input type="file" accept="image/*" id="bgImageInput" hidden>
       </div>
 
@@ -531,6 +541,7 @@
 
   <div class="export-frame" id="exportFrame">
     <div class="bg-slot" id="bgSlot">
+      <img class="bg-blur-img" id="bgBlurImg">
       <img class="preview-img" id="bgPreviewImg">
     </div>
     <div class="dots-layer" id="dotsLayer"></div>
@@ -693,7 +704,7 @@
       palettePastel: "파스텔", paletteVivid: "비비드", paletteDeep: "딥톤", paletteNeutral: "뉴트럴",
       labelCustomPick: "직접 선택", titleCurrentColor: "현재 색상",
       labelBgImage: "여백 배경", btnChooseImage: "🖼️ 이미지 선택", btnResetDefault: "↺ 기본값",
-      btnDots: "✨ 흰점 추가",
+      btnBgBlur: "🌫️ 배경 블러", btnDots: "✨ 흰점 추가",
       labelSaveRatio: "저장 비율", ratioDefault: "기본", ratioSquare: "정사각형", ratioIpad: "사과패드",
       btnDownload: "💾 이미지로 저장",
       exportFrameTag: "✂︎ 점선 안쪽까지 이미지로 저장돼요",
@@ -724,7 +735,7 @@
       palettePastel: "Pastel", paletteVivid: "Vivid", paletteDeep: "Deep", paletteNeutral: "Neutral",
       labelCustomPick: "Custom", titleCurrentColor: "Current Color",
       labelBgImage: "Background", btnChooseImage: "🖼️ Choose Image", btnResetDefault: "↺ Reset",
-      btnDots: "✨ Add Dots",
+      btnBgBlur: "🌫️ Blur Background", btnDots: "✨ Add Dots",
       labelSaveRatio: "Aspect Ratio", ratioDefault: "Default", ratioSquare: "Square", ratioIpad: "iPad",
       btnDownload: "💾 Save as Image",
       exportFrameTag: "✂︎ Everything inside the dashed line gets saved",
@@ -755,7 +766,7 @@
       palettePastel: "パステル", paletteVivid: "ビビッド", paletteDeep: "ディープトーン", paletteNeutral: "ニュートラル",
       labelCustomPick: "自分で選択", titleCurrentColor: "現在の色",
       labelBgImage: "背景", btnChooseImage: "🖼️ 画像を選ぶ", btnResetDefault: "↺ デフォルトに戻す",
-      btnDots: "✨ ドット追加",
+      btnBgBlur: "🌫️ 背景ぼかし", btnDots: "✨ ドット追加",
       labelSaveRatio: "保存比率", ratioDefault: "デフォルト", ratioSquare: "正方形", ratioIpad: "iPad",
       btnDownload: "💾 画像として保存",
       exportFrameTag: "✂︎ 点線の内側までが画像として保存されます",
@@ -1059,6 +1070,85 @@
     applyZoomTransform(img);
   }
 
+  // ---------- 여백 배경 블러 레이어 : cover 기준 크기 계산 + 블러 이미지 굽기 ----------
+  // layoutImage()가 "잘리는 부분 없이 다 보이는" contain 기준이라면,
+  // 이건 반대로 "빈틈없이 프레임을 꽉 채우는" cover 기준 크기를 계산한다.
+  const BG_BLUR_OVERSCAN = 1.15; // 블러 필터의 가장자리 번짐이 프레임 밖으로 빠지도록 여유 확대
+  function coverFitSize(nw, nh, cw, ch){
+    if(nw/nh > cw/ch) return { w: ch * (nw/nh), h: ch };
+    return { w: cw, h: cw * (nh/nw) };
+  }
+  function layoutBgBlur(slot, img){
+    const nw = img._natW, nh = img._natH;
+    if(!nw || !nh) return;
+    const cw = slot.clientWidth, ch = slot.clientHeight;
+    if(!cw || !ch) return;
+    const fit = coverFitSize(nw, nh, cw, ch);
+    img.style.width = (fit.w * BG_BLUR_OVERSCAN) + 'px';
+    img.style.height = (fit.h * BG_BLUR_OVERSCAN) + 'px';
+    img.style.transform = 'translate(-50%, -50%)';
+  }
+  // 원본 이미지의 상/하/좌/우 가장자리 평균색을 추출해 그라디언트로 블렌드한 뒤
+  // 부드럽게 블러 처리한 data URL로 미리 구워둔다 (사진 내용 대신 가장자리 색감만 반영).
+  // CSS filter:blur()를 실시간으로 쓰지 않는 이유: html2canvas가 CSS filter를
+  // 안정적으로 캡처하지 못해 저장 시 블러가 사라질 수 있기 때문에, 화면에 보이는
+  // 것과 저장 결과가 동일하도록 처음부터 "블러가 찍힌 이미지"를 만들어 사용한다.
+  function makeEdgeGradientDataURL(srcImg, callback){
+    const SAMPLE = 64; // 가장자리 색 추출용 축소 크기 (색상 평균만 필요해 저해상도로 충분)
+    const nw = srcImg.naturalWidth, nh = srcImg.naturalHeight;
+    const scale = Math.min(1, SAMPLE / Math.max(nw, nh));
+    const sw = Math.max(1, Math.round(nw*scale));
+    const sh = Math.max(1, Math.round(nh*scale));
+    const sampleCanvas = document.createElement('canvas');
+    sampleCanvas.width = sw; sampleCanvas.height = sh;
+    const sctx = sampleCanvas.getContext('2d');
+    sctx.drawImage(srcImg, 0, 0, sw, sh);
+
+    // 각 변에서 폭 8%짜리 스트립의 평균 RGB를 계산
+    function avgColor(x0, y0, w, h){
+      const data = sctx.getImageData(x0, y0, w, h).data;
+      let r=0, g=0, b=0, n=0;
+      for(let i=0; i<data.length; i+=4){ r+=data[i]; g+=data[i+1]; b+=data[i+2]; n++; }
+      return n ? [r/n, g/n, b/n] : [0,0,0];
+    }
+    const stripFrac = 0.08;
+    const stripW = Math.max(1, Math.round(sw*stripFrac));
+    const stripH = Math.max(1, Math.round(sh*stripFrac));
+    const leftC   = avgColor(0, 0, stripW, sh);
+    const rightC  = avgColor(sw-stripW, 0, stripW, sh);
+    const topC    = avgColor(0, 0, sw, stripH);
+    const bottomC = avgColor(0, sh-stripH, sw, stripH);
+    const rgb = c => `rgb(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])})`;
+
+    // 좌->우, 상->하 그라디언트를 겹쳐 블렌드
+    const OUT = 128; // 배경용이라 저해상도로 충분
+    const canvas = document.createElement('canvas');
+    canvas.width = OUT; canvas.height = OUT;
+    const ctx = canvas.getContext('2d');
+    const gH = ctx.createLinearGradient(0, 0, OUT, 0);
+    gH.addColorStop(0, rgb(leftC));
+    gH.addColorStop(1, rgb(rightC));
+    ctx.fillStyle = gH;
+    ctx.fillRect(0, 0, OUT, OUT);
+    ctx.globalAlpha = 0.5;
+    const gV = ctx.createLinearGradient(0, 0, 0, OUT);
+    gV.addColorStop(0, rgb(topC));
+    gV.addColorStop(1, rgb(bottomC));
+    ctx.fillStyle = gV;
+    ctx.fillRect(0, 0, OUT, OUT);
+    ctx.globalAlpha = 1;
+
+    // 그라디언트 이음새를 부드럽게 하기 위해 블러를 입혀 최종 캔버스에 그림
+    const finalCanvas = document.createElement('canvas');
+    finalCanvas.width = OUT; finalCanvas.height = OUT;
+    const fctx = finalCanvas.getContext('2d');
+    if(typeof fctx.filter === 'string'){
+      fctx.filter = `blur(${Math.round(OUT*0.12)}px)`;
+    }
+    fctx.drawImage(canvas, 0, 0);
+    callback(finalCanvas.toDataURL('image/png'));
+  }
+
   document.addEventListener('change', e=>{
     if(!e.target.classList.contains('file-input')) return;
     const file = e.target.files[0];
@@ -1087,6 +1177,13 @@
     const z = img._zoom;
     img.style.transform = `translate(-50%, -50%) translate(${z.x}px, ${z.y}px) scale(${z.scale})`;
   }
+  // 확대/축소 배율 한계값. 예전에는 1(칸에 딱 맞는 최소 크기)~4배로 막혀있었는데,
+  // 사진을 더 작게 줄이거나(작은 소품처럼 배치) 더 크게 확대(클로즈업 크롭)하고
+  // 싶은 경우가 있어서 범위를 넓혔다. 하한이 1보다 작아지면 사진이 칸보다
+  // 작아질 수 있는데, clampZoom()의 여유 이동 범위(slack) 로직이 이미 그 경우도
+  // 처리하도록 되어 있어 별도 수정 없이도 자연스럽게 동작한다.
+  const ZOOM_MIN = 0.3;
+  const ZOOM_MAX = 8;
   function clampZoom(slot, img){
     const z = img._zoom;
     const rect = slot.getBoundingClientRect();
@@ -1116,7 +1213,7 @@
     e.preventDefault();
     const z = img._zoom;
     const delta = -e.deltaY * 0.0015;
-    z.scale = Math.max(1, Math.min(4, z.scale + z.scale*delta));
+    z.scale = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, z.scale + z.scale*delta));
     clampZoom(slot, img);
     applyZoomTransform(img);
   }, {passive:false});
@@ -1216,7 +1313,7 @@
             const [p1, p2] = [...pts.values()];
             const dist = pointerDistance(p1, p2);
             const z = pinch.img._zoom;
-            z.scale = Math.max(1, Math.min(4, pinch.startScale * (dist / pinch.startDist)));
+            z.scale = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, pinch.startScale * (dist / pinch.startDist)));
             clampZoom(slot, pinch.img);
             applyZoomTransform(pinch.img);
           }
@@ -1365,8 +1462,24 @@
   // ---------- 여백 배경 이미지 (업로드 칸과 동일하게 휠로 확대, 드래그로 이동) ----------
   const exportFrame = document.getElementById('exportFrame');
   const bgSlot = document.getElementById('bgSlot');
+  const bgBlurImg = document.getElementById('bgBlurImg');
   const bgPreviewImg = document.getElementById('bgPreviewImg');
   const bgImageInput = document.getElementById('bgImageInput');
+  // ---------- 여백 배경 블러 온/오프 ----------
+  // 블러 이미지는 업로드 시 항상 미리 구워두고, 이 토글은 오직 "보여줄지 말지"만
+  // 제어한다. 그래야 껐다 켜도 다시 굽는 지연 없이 즉시 반영된다.
+  let bgBlurEnabled = true;
+  const bgBlurToggleBtn = document.getElementById('bgBlurToggleBtn');
+  function updateBgBlurVisibility(){
+    const shouldShow = bgBlurEnabled && !!bgBlurImg.getAttribute('src');
+    bgBlurImg.style.display = shouldShow ? 'block' : 'none';
+  }
+  bgBlurToggleBtn.addEventListener('click', ()=>{
+    bgBlurEnabled = !bgBlurEnabled;
+    bgBlurToggleBtn.classList.toggle('active', bgBlurEnabled);
+    updateBgBlurVisibility();
+  });
+
   document.getElementById('bgImageBtn').addEventListener('click', ()=> bgImageInput.click());
   bgImageInput.addEventListener('change', e=>{
     const file = e.target.files[0];
@@ -1380,6 +1493,18 @@
         layoutImage(bgSlot, bgPreviewImg);
         bgPreviewImg.style.display = 'block';
         bgSlot.classList.add('has-image');
+
+        // 같은 이미지를 확대+블러 처리해 아래 레이어로 깔아, 위 사진이 프레임을
+        // 다 못 채워도 빈틈이 비슷한 색감으로 자연스럽게 이어지게 한다.
+        makeEdgeGradientDataURL(bgPreviewImg, blurredDataURL=>{
+          bgBlurImg.onload = ()=>{
+            bgBlurImg._natW = bgBlurImg.naturalWidth;
+            bgBlurImg._natH = bgBlurImg.naturalHeight;
+            layoutBgBlur(bgSlot, bgBlurImg);
+            updateBgBlurVisibility();
+          };
+          bgBlurImg.src = blurredDataURL;
+        });
       };
       bgPreviewImg.src = ev.target.result;
     };
@@ -1398,7 +1523,23 @@
     delete bgPreviewImg._natH;
     delete bgPreviewImg._baseW;
     delete bgPreviewImg._baseH;
+
+    bgBlurImg.src = '';
+    bgBlurImg.style.display = 'none';
+    bgBlurImg.style.transform = '';
+    bgBlurImg.style.width = '';
+    bgBlurImg.style.height = '';
+    delete bgBlurImg._natW;
+    delete bgBlurImg._natH;
   });
+
+  // 여백 프레임 크기가 바뀔 때마다(화면 리사이즈뿐 아니라 저장 비율 버튼으로
+  // 프레임 폭이 강제로 늘어나는 경우도 포함) 두 레이어를 함께 재계산해서
+  // 블러 배경이 항상 프레임을 빈틈없이 덮도록 유지한다.
+  new ResizeObserver(()=>{
+    if(bgPreviewImg._natW) layoutImage(bgSlot, bgPreviewImg);
+    if(bgBlurImg._natW) layoutBgBlur(bgSlot, bgBlurImg);
+  }).observe(bgSlot);
 
   // ---------- 여백 장식: 흰점(스파클) 오버레이 켜고 끄기 ----------
   const dotsLayer = document.getElementById('dotsLayer');
@@ -1538,13 +1679,36 @@
     if(nw/nh > cw/ch){ baseW = cw; baseH = cw * (nh/nw); }
     else { baseH = ch; baseW = ch * (nw/nh); }
 
+    // 모바일에서 저장 버튼을 누르면 body.exporting 클래스가 강제 데스크톱 레이아웃으로
+    // 전환시키는데, 이 과정에서 layoutImage()가 다시 불리지 않아 슬롯 크기(cw/ch)만
+    // 바뀌고 z.x/z.y(절대 픽셀 오프셋)는 드래그 당시 크기 기준 그대로 남는다.
+    // liveImg._baseW에는 드래그 당시(전환 전) 크기가 남아있으므로, 그 대비 배율만큼
+    // 오프셋도 같이 스케일링해야 화면에서 보던 위치와 저장 결과가 일치한다.
+    const refW = liveImg._baseW || baseW;
+    const posScale = refW ? (baseW / refW) : 1;
+
     // 실제 <img>는 그대로 유지한다. html2canvas는 background-image보다
     // <img> 엘리먼트를 그릴 때 훨씬 선명하게 렌더링하므로, 화면에 보이는 것과
     // 동일한 translate+scale 트랜스폼을 정수 픽셀로만 재적용해 화질 저하를 막는다.
     clonedImg.style.width = Math.round(baseW) + 'px';
     clonedImg.style.height = Math.round(baseH) + 'px';
     clonedImg.style.transform =
-      `translate(-50%, -50%) translate(${Math.round(z.x)}px, ${Math.round(z.y)}px) scale(${z.scale})`;
+      `translate(-50%, -50%) translate(${Math.round(z.x*posScale)}px, ${Math.round(z.y*posScale)}px) scale(${z.scale})`;
+
+    // 여백 배경의 블러 레이어도 같은 방식으로, 저장 시점의 실제 프레임 크기
+    // 기준 cover 값을 다시 계산해 정수 픽셀로 고정한다 (조작 대상이 아니라
+    // _zoom이 없으므로 위치는 항상 중앙 고정).
+    const liveBlur = liveSlot.querySelector('.bg-blur-img');
+    const clonedBlur = clonedSlot.querySelector('.bg-blur-img');
+    if(bgBlurEnabled && liveBlur && clonedBlur && liveBlur.getAttribute('src')){
+      const bnw = liveBlur.naturalWidth, bnh = liveBlur.naturalHeight;
+      if(cw && ch && bnw && bnh){
+        const fit = coverFitSize(bnw, bnh, cw, ch);
+        clonedBlur.style.width = Math.round(fit.w * BG_BLUR_OVERSCAN) + 'px';
+        clonedBlur.style.height = Math.round(fit.h * BG_BLUR_OVERSCAN) + 'px';
+        clonedBlur.style.transform = 'translate(-50%, -50%)';
+      }
+    }
   }
 
   // iOS(아이폰/아이패드, 웹뷰 포함)는 브라우저 엔진이 전부 WebKit이라 캔버스 한 변이
