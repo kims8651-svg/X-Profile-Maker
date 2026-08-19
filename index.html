@@ -1549,6 +1549,27 @@
     dotsToggleBtn.classList.toggle('active', isActive);
   });
 
+  // 흰점 레이어는 화면에서는 CSS radial-gradient + background-size 반복 타일링으로 그리지만,
+  // html2canvas는 이 "그라디언트를 작은 타일로 반복"하는 렌더링을 제대로 지원하지 못해
+  // 저장된 이미지에는 흰점이 아예 빠지는 문제가 있다 (html2canvas의 알려진 한계).
+  // 그래서 저장(export) 시에는 동일한 점 패턴을 실제 PNG로 한 번 구워서 data URI로 만든 뒤,
+  // 클론 문서에서만 background-image를 그 PNG로 교체한다. 화면 표시용 CSS는 그대로 둔다.
+  let _dotsTileDataURI = null;
+  function getDotsTileDataURI(){
+    if(_dotsTileDataURI) return _dotsTileDataURI;
+    const SCALE = 8; // 6px 타일을 8배 해상도로 구워서, 확대 저장해도 점 가장자리가 흐려지지 않게 함
+    const size = 6 * SCALE;
+    const tile = document.createElement('canvas');
+    tile.width = tile.height = size;
+    const tctx = tile.getContext('2d');
+    tctx.fillStyle = '#ffffff';
+    tctx.beginPath();
+    tctx.arc(3*SCALE, 3*SCALE, 1.5*SCALE, 0, Math.PI*2);
+    tctx.fill();
+    _dotsTileDataURI = tile.toDataURL('image/png');
+    return _dotsTileDataURI;
+  }
+
   // ---------- 저장 비율: 오른쪽 여백을 확장해 기본 / 정사각형 / 사과패드 비율로 저장 ----------
   const card = document.getElementById('card');
   const ratioBtns = document.querySelectorAll('.ratio-btn');
@@ -1808,6 +1829,17 @@
             const cloned = clonedSlots[i];
             if(cloned) fixImageSlotForExport(live, cloned);
           });
+
+          // 3) 흰점(스파클) 레이어 - html2canvas가 radial-gradient 타일링을 그리지 못하므로
+          //    켜져 있을 때만 실제 PNG 데이터 URI로 교체 (화면용 CSS는 그대로 유지됨)
+          if(dotsLayer.classList.contains('active')){
+            const clonedDotsLayer = clonedDoc.getElementById('dotsLayer');
+            if(clonedDotsLayer){
+              clonedDotsLayer.style.backgroundImage = `url(${getDotsTileDataURI()})`;
+              clonedDotsLayer.style.backgroundSize = '6px 6px';
+              clonedDotsLayer.style.opacity = '0.6';
+            }
+          }
         }
       }).then(canvas=>{
         document.body.classList.remove('exporting');
